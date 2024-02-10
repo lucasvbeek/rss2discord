@@ -1,0 +1,20 @@
+version: '3.9'
+services:
+  rss2discord:
+    build:
+      context: .
+      dockerfile: Containerfile
+    volumes:
+      - ./config.toml:/etc/rss2discord/config.toml
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - 5432:5432
+    volumes:
+     - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: database
+volumes:
+  pgdata:

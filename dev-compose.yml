@@ -1,0 +1,14 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - 5432:5432
+    volumes:
+     - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: rss2discord
+      POSTGRES_PASSWORD: rss2discord
+      POSTGRES_DB: rss2discord
+volumes:
+  pgdata:
