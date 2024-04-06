@@ -5,7 +5,10 @@ services:
       context: .
       dockerfile: Containerfile
     volumes:
-      - ./config.toml:/etc/rss2discord/config.toml
+      - ./config.yaml:/etc/rss2discord/config.yaml
+    environment:
+      RSS2DISCORD_DATABASE: postgres://rss2discord:rss2discord@postgres/rss2discord
+      RSS2DISCORD_LOG: debug
   postgres:
     image: postgres:16-alpine
     ports:
@@ -13,8 +16,8 @@ services:
     volumes:
      - pgdata:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: database
+      POSTGRES_USER: rss2discord
+      POSTGRES_PASSWORD: rss2discord
+      POSTGRES_DB: rss2discord
 volumes:
   pgdata:

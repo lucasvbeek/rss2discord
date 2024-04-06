@@ -1,38 +1,60 @@
-use std::path::PathBuf;
 use anyhow::Result;
-use serde_derive::{Serialize, Deserialize};
+use serde_derive::{Deserialize, Serialize};
+use std::path::PathBuf;
 
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Config {
     pub feeds: Vec<ConfigFeed>,
-    pub database: ConfigDatabase
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ConfigFeed {
     pub id: String,
     pub rss_url: String,
-    pub webhook_url: String,
     pub interval: u64,
-    pub message: String
+    pub guid_regex: Option<String>,
+    pub receivers: Vec<ConfigFeedReceiver>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ConfigDatabase {
-    pub connection: String
+pub struct ConfigFeedReceiver {
+    #[serde(rename = "type")]
+    pub receiver_type: ConfigFeedReceiverType,
+    pub discord: ConfigFeedDiscordReceiver,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum ConfigFeedReceiverType {
+    Discord,
+}
 
-impl Default for Config {
-    fn default() -> Self {
-        Config {
-            feeds: vec![],
-            database: ConfigDatabase { 
-                connection: "postgres://postgres:postgres@postgres/postgres".to_owned() 
-            }
-        }
-    }
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ConfigFeedDiscordReceiver {
+    pub webhook_url: String,
+    pub content: Option<String>,
+    #[serde(default)]
+    pub embeds: Vec<ConfigFeedDiscordReceiverEmbed>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ConfigFeedDiscordReceiverEmbed {
+    pub title: Option<String>,
+    pub description: Option<String>,
+    #[serde(default)]
+    pub fields: Vec<ConfigFeedDiscordReceiverEmbedField>,
+    pub footer: Option<String>,
+    pub image: Option<String>,
+    pub thumbnail: Option<String>,
+    pub url: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ConfigFeedDiscordReceiverEmbedField {
+    pub name: String,
+    pub value: String,
+    #[serde(default)]
+    pub inline: bool,
 }
 
 impl Config {

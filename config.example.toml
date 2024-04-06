@@ -1,9 +1,0 @@
-[database]
-connection = 'postgres://user:password@127.0.0.1/database'
-
-[[feeds]]
-id = "hackernews"
-rss_url = "https://hnrss.org/newest"
-interval = 60
-webhook_url = "" # Discord webhook URL
-message = "$title \n\nArticle: $link \nComments: $comments"

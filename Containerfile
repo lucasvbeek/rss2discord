@@ -17,4 +17,4 @@ RUN cargo build --release --target x86_64-unknown-linux-musl
 
 FROM gcr.io/distroless/static:latest
 COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/rss2discord /usr/local/bin/
-CMD ["/usr/local/bin/rss2discord", "-c", "/etc/rss2discord/config.toml"]
+CMD ["/usr/local/bin/rss2discord", "-c", "/etc/rss2discord/config.yaml"]

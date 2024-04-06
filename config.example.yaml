@@ -1,0 +1,18 @@
+---
+feeds:
+  - id: feed
+    rss_url: 
+    interval: 10
+    receivers:
+      - type: discord
+        discord:
+          webhook_url: 
+          message: '$title'
+          embeds:
+            - title: $title
+              url: $link
+              fields:
+              - name: Field
+                value: $pub_date
+                inline: true
+              footer: $pub_date
