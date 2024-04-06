@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, FixedOffset};
 use log::debug;
-use rss::{extension::Extension, Channel, Guid, Item};
+use rss::{extension::Extension, Category, Channel, Guid, Item};
 
 use crate::{config::ConfigFeed, database::{Database, DatabaseFeedItem}, webhook::Webhook};
 
@@ -101,6 +101,8 @@ fn parse_variables_from_item(item: &Item) -> BTreeMap<String, String> {
         let datetime = DateTime::parse_from_rfc2822(pub_date).unwrap_or_default();
         variables.push((String::from("pub_date"), datetime.format("%v %R").to_string()));
     }
+
+    variables.push((String::from("categories"), item.categories.iter().map(|c| c.name.clone()).collect::<Vec<String>>().join(", ")));
 
     let extentions: Vec<&Extension> = item.extensions.values().flatten().flat_map(|(_, m)| m).collect();
 
