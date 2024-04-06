@@ -4,6 +4,8 @@ mod feed;
 mod receivers;
 mod scheduler;
 
+use std::env;
+
 use anyhow::Result;
 use clap::Parser;
 use env_logger::Env;
@@ -28,7 +30,12 @@ async fn main() -> Result<()> {
     let env = Env::default().filter_or("RSS2DISCORD_LOG", "info");
     env_logger::init_from_env(env);
 
+    dbg!(env::var("RSS2DISCORD_DATABASE")?);
+
     let args = Args::parse();
+
+    dbg!(&args);
+
     let config = Config::load(args.config_location)?;
 
     info!(
@@ -36,6 +43,7 @@ async fn main() -> Result<()> {
         VERSION,
         config.feeds.len()
     );
+
 
     let database = Database::init(&args.database).await?;
 
