@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, FixedOffset};
 use log::debug;
-use rss::{extension::Extension, Category, Channel, Guid, Item};
+use rss::{extension::Extension, Channel, Guid, Item};
 
 use crate::{config::ConfigFeed, database::{Database, DatabaseFeedItem}, webhook::Webhook};
 
@@ -30,7 +30,7 @@ impl Feed {
 
         debug!("Fetching feed {} {}", self.id, self.url);
 
-        let items: Vec<DatabaseFeedItem> = channel.items.iter()
+        let mut items: Vec<DatabaseFeedItem> = channel.items.iter()
             .filter(|i| i.link.is_some())
             .map(|i| { (i.clone(), parse_variables_from_item(i)) })
             .map(|i| {
@@ -42,6 +42,8 @@ impl Feed {
                 }
             }
         ).collect();
+
+        items.sort_by_key(|i| i.published_at);
 
         debug!("Received {} items from feed {}", items.len(), self.id);
 
