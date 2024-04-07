@@ -35,6 +35,15 @@ pub struct ConfigFeedDiscordReceiver {
     pub content: Option<String>,
     #[serde(default)]
     pub embeds: Vec<ConfigFeedDiscordReceiverEmbed>,
+    pub overrides: Vec<ConfigFeedDiscordReceiverOverride>
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ConfigFeedDiscordReceiverOverride {
+    pub regex: String,
+    pub field: String,
+    pub webhook_url: Option<String>,
+    pub content: Option<String>
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

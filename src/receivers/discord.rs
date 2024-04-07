@@ -1,4 +1,5 @@
 use crate::config::ConfigFeedDiscordReceiver;
+use fancy_regex::Regex;
 use serde_json::{json, Value};
 
 use super::Receivable;
@@ -11,9 +12,30 @@ pub type JsonObject = serde_json::Map<String, serde_json::Value>;
 
 impl Receivable for DiscordReceiver {
     async fn send_item(&self, item: &crate::database::DatabaseFeedItem) -> anyhow::Result<()> {
+        let mut webhook_url = self.config.webhook_url.clone();
+        let mut content = self.config.content.clone();
+        for or in &self.config.overrides {
+            let Some(value) = item.variables.get(&or.field) else {
+                continue;
+            };
+            let regex = Regex::new(&or.regex)?;
+            let Ok(Some(_)) = regex.find(value) else {
+                continue;
+            };
+
+            if let Some(url) = or.webhook_url.clone() {
+                webhook_url = url;
+            }
+
+            if let Some(c) = or.content.clone() {
+                content = Some(c);
+            }
+            
+        }
+
         let mut message = JsonObject::new();
 
-        if let Some(content) = &self.config.content {
+        if let Some(content) = &content {
             message.insert(String::from("content"), Value::String(item.sub(content)));
         }
 
@@ -83,7 +105,7 @@ impl Receivable for DiscordReceiver {
         dbg!(&message);
 
         reqwest::Client::new()
-            .post(&self.config.webhook_url)
+            .post(webhook_url)
             .json(&message)
             .send()
             .await?;
