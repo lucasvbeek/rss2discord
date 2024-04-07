@@ -35,6 +35,7 @@ pub struct ConfigFeedDiscordReceiver {
     pub content: Option<String>,
     #[serde(default)]
     pub embeds: Vec<ConfigFeedDiscordReceiverEmbed>,
+    #[serde(default)]
     pub overrides: Vec<ConfigFeedDiscordReceiverOverride>
 }
 
