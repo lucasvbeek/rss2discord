@@ -1,7 +1,8 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, str::FromStr};
 
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, FixedOffset};
+use chrono_tz::Tz;
 use fancy_regex::Regex;
 use log::debug;
 use rss::{extension::Extension, Channel, Guid, Item};
@@ -133,9 +134,10 @@ fn parse_variables_from_item(item: &Item) -> BTreeMap<String, String> {
 
     if let Some(pub_date) = &item.pub_date {
         let datetime = DateTime::parse_from_rfc2822(pub_date).unwrap_or_default();
+        let datetime = datetime.with_timezone(&Tz::UTC);
         variables.push((
             String::from("pub_date"),
-            datetime.format("%v %R").to_string(),
+            datetime.format("%v %R %Z").to_string(),
         ));
     }
 
