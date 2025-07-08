@@ -85,12 +85,27 @@ impl Feed {
         if resp.status().as_u16() != 200 {
             return Err(anyhow!("unexpected statuscode {}", resp.status()));
         }
-        let content = resp.bytes().await?;
 
         // if atom (default is RSS)
         if self.atom.unwrap_or(false) {
             // parse as Atom
-            let feed = AtomFeed::read_from(&content[..])?;
+            debug!("Parsing feed {} as Atom", self.id);
+
+            let content = resp.text().await?;
+
+            // tenderned bodges
+
+            // remove atom namespaces
+            let content = content.replace("<atom:", "<");
+            let content = content.replace("</atom:", "</");
+
+            // remove xml declaration
+            let content = content.replace(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",
+                "",
+            );
+
+            let feed = AtomFeed::read_from(std::io::Cursor::new(content))?;
 
             Ok(feed
                 .entries
@@ -100,12 +115,15 @@ impl Feed {
                 .map(|i| DatabaseFeedItem {
                     feed_name: self.id.clone(),
                     external_id: get_unique_id_from_atom_item(&i.0, &self.regex),
-                    published_at: i.0.published.expect("Atom item has no published date"),
-                    variables: BTreeMap::new(),
+                    published_at: i.0.updated,
+                    variables: i.1,
                 })
                 .collect())
         } else {
             // parse as RSS
+            debug!("Parsing feed {} as RSS", self.id);
+
+            let content = resp.bytes().await?;
             let channel = Channel::read_from(&content[..])?;
 
             Ok(channel
@@ -249,12 +267,14 @@ fn parse_variables_from_atom_item(item: &Entry) -> BTreeMap<String, String> {
         variables.push((String::from("link"), link.href().to_string()));
     }
 
-    if let Some(pub_date) = &item.published {
-        variables.push((
-            String::from("pub_date"),
-            pub_date.format("%v %R %Z").to_string(),
-        ));
+    if let Some(author) = &item.authors.first() {
+        variables.push((String::from("author"), author.name.clone()));
     }
+
+    variables.push((
+        String::from("pub_date"),
+        item.updated.format("%v %R %Z").to_string(),
+    ));
 
     variables.push((
         String::from("categories"),
