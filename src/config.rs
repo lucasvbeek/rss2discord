@@ -15,6 +15,7 @@ pub struct ConfigFeed {
     pub guid_regex: Option<String>,
     pub receivers: Vec<ConfigFeedReceiver>,
     pub user_agent: Option<String>,
+    pub atom: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -37,7 +38,7 @@ pub struct ConfigFeedDiscordReceiver {
     #[serde(default)]
     pub embeds: Vec<ConfigFeedDiscordReceiverEmbed>,
     #[serde(default)]
-    pub overrides: Vec<ConfigFeedDiscordReceiverOverride>
+    pub overrides: Vec<ConfigFeedDiscordReceiverOverride>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -45,7 +46,7 @@ pub struct ConfigFeedDiscordReceiverOverride {
     pub regex: String,
     pub field: String,
     pub webhook_url: Option<String>,
-    pub content: Option<String>
+    pub content: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

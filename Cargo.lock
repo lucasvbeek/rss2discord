@@ -1861,6 +1861,7 @@ name = "rss2discord"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "atom_syndication",
  "chrono",
  "chrono-tz",
  "clap",
