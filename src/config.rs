@@ -14,6 +14,7 @@ pub struct ConfigFeed {
     pub interval: u64,
     pub guid_regex: Option<String>,
     pub receivers: Vec<ConfigFeedReceiver>,
+    pub user_agent: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

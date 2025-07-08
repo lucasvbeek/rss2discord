@@ -1,10 +1,11 @@
-use std::{collections::BTreeMap, str::FromStr};
+use std::collections::BTreeMap;
 
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, FixedOffset};
 use chrono_tz::Tz;
 use fancy_regex::Regex;
 use log::debug;
+use reqwest::Method;
 use rss::{extension::Extension, Channel, Guid, Item};
 
 use crate::{
@@ -17,6 +18,7 @@ use crate::{
 pub struct Feed {
     pub id: String,
     url: String,
+    user_agent: Option<String>,
     receivers: Vec<ConfigFeedReceiver>,
     regex: Option<Regex>,
 }
@@ -27,6 +29,7 @@ impl Feed {
             id: config.id,
             url: config.rss_url,
             receivers: config.receivers,
+            user_agent: config.user_agent,
             regex: config
                 .guid_regex
                 .map(|re| Regex::new(&re).expect("Invalid regex")),
@@ -34,7 +37,7 @@ impl Feed {
     }
 
     pub async fn process(&self, database: &Database) -> Result<()> {
-        let channel = fetch_and_parse_feed(&self.url).await?;
+        let channel = fetch_and_parse_feed(&self.url, &self.user_agent).await?;
 
         debug!("Fetching feed {} {}", self.id, self.url);
 
@@ -78,8 +81,18 @@ impl Feed {
     }
 }
 
-async fn fetch_and_parse_feed(feed: &str) -> Result<Channel> {
-    let resp = reqwest::get(feed).await?;
+async fn fetch_and_parse_feed(feed: &str, user_agent: &Option<String>) -> Result<Channel> {
+    let client = reqwest::Client::new();
+
+    let req = match user_agent {
+        Some(agent) => client
+            .request(Method::GET, feed)
+            .header(reqwest::header::USER_AGENT, agent),
+        None => client.request(Method::GET, feed),
+    };
+
+    let resp = req.send().await?;
+
     if resp.status().as_u16() != 200 {
         return Err(anyhow!("unexpected statuscode {}", resp.status()));
     }
