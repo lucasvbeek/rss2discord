@@ -16,12 +16,12 @@ confy = { version = "0.6.0", features = ["yaml_conf"], default-features = false 
 env_logger = "0.11.1"
 fancy-regex = "0.13.0"
 log = "0.4.20"
-reqwest = { version = "0.12.3", features = ["json", "rustls-tls-native-roots"] }
+reqwest = { version = "0.12.3", features = ["http2", "charset", "json", "rustls-tls", "rustls-tls-native-roots"], default-features = false }
 rss = "2.0.7"
 serde = "1.0.196"
 serde_derive = "1.0.196"
 serde_json = "1.0.112"
-sqlx = { version = "0.7.3", features = ["runtime-tokio", "tls-native-tls", "postgres", "chrono"] }
+sqlx = { version = "0.8.0", features = ["runtime-tokio", "tls-rustls-ring-native-roots", "postgres", "chrono"] }
 subst = "0.3.0"
 tokio = { version = "1.35.1", features = ["full"] }
 tokio-cron-scheduler = { version = "0.10.0", features = ["signal"] }
